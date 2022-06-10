@@ -1,0 +1,32 @@
+name: CI
+
+on: 
+  pull_request:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use NodeJS
+        uses: actions/setup-node@v2
+        with: 
+          node-version: "12.x"
+      - run: npm ci
+      - run: npm run format
+      - run: npm run format:check
+      - run: npm test -- --coverage
+        env: 
+          CI: true
+      - name: Build the app
+        if:  github.event_name == 'push'
+        run: npm run build
+      - name: Deploy the app
+        if:  github.event_name == 'push'
+        run: npm surge --project ./build --domain lewd-mist.surge.sh
+        env:
+          SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
+          SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
+        
+
