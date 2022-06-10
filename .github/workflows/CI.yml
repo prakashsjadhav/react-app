@@ -19,4 +19,14 @@ jobs:
       - run: npm test -- --coverage
         env: 
           CI: true
+      - name: Build the app
+        if:  github.event_name == 'push'
+        run: npm run build
+      - name: Deploy the app
+        if:  github.event_name == 'push'
+        run: npm surge --project ./build --domain lewd-mist.surge.sh
+        env:
+          SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
+          SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
+        
 
